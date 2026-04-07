@@ -443,7 +443,7 @@
             currentRotation = totalRotation;
 
             setTimeout(() => {
-                showResult(outcomes[resultIndex]);
+                showResult(outcomes[resultIndex], resultIndex);
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
                 wheel.style.transition = 'none';
@@ -454,8 +454,15 @@
             return allImages[Math.floor(Math.random() * allImages.length)];
         }
 
-        function showResult(outcome) {
-            document.getElementById('resultText').textContent = outcome;
+        function showResult(outcome, outcomeIndex) {
+            let resultText = outcome;
+            
+            // Check if it's a session outcome (0, 2, 4)
+            if (outcomeIndex === 0 || outcomeIndex === 2 || outcomeIndex === 4) {
+                resultText = outcome + '\n\nmsg me on twitter to claim ur reward';
+            }
+            
+            document.getElementById('resultText').innerHTML = resultText.replace(/\n/g, '<br>');
             
             const randomImage = getRandomImage();
             const imgElement = document.getElementById('resultImage');
