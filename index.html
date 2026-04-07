@@ -455,12 +455,7 @@
         }
 
         function showResult(outcome, outcomeIndex) {
-            let resultText = outcome;
-            
-            // Check if it's a session outcome (0, 2, 4)
-            if (outcomeIndex === 0 || outcomeIndex === 2 || outcomeIndex === 4) {
-                resultText = outcome + '\n\nmsg me on twitter to claim ur reward';
-            }
+            const resultText = outcome + '\n\nscreenshot and msg me to claim the reward';
             
             document.getElementById('resultText').innerHTML = resultText.replace(/\n/g, '<br>');
             
