@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Wheel ~ Free</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #ff1493;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 40px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #ff1493 0deg 60deg,
+                #ff69b4 60deg 120deg,
+                #ff85c0 120deg 180deg,
+                #ff4588 180deg 240deg,
+                #ff0080 240deg 300deg,
+                #e6006d 300deg 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.6);
+            position: relative;
+            transition: transform 0.1s linear;
+        }
+
+        .wheel-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .outcome {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .outcome-1 { transform: rotate(30deg) translateY(-100px) rotate(-30deg); }
+        .outcome-2 { transform: rotate(90deg) translateY(-100px) rotate(-90deg); }
+        .outcome-3 { transform: rotate(150deg) translateY(-100px) rotate(-150deg); }
+        .outcome-4 { transform: rotate(210deg) translateY(-100px) rotate(-210deg); }
+        .outcome-5 { transform: rotate(270deg) translateY(-100px) rotate(-270deg); }
+        .outcome-6 { transform: rotate(330deg) translateY(-100px) rotate(-330deg); }
+
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #ff1493;
+            z-index: 10;
+        }
+
+        .spin-btn {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 20, 147, 0.6);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            background: rgba(255, 20, 147, 0.2);
+            border: 2px solid #ff1493;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            color: #ffffff;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .result h2 {
+            color: #ff1493;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: rgba(30, 30, 50, 0.98);
+            border: 3px solid #ff1493;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(255, 20, 147, 0.8);
+            text-align: center;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-content h2 {
+            color: #ff1493;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .modal-close-btn {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4);
+        }
+
+        .modal-close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 20, 147, 0.6);
+        }
+
+        .paid-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a1a2e;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            border: none;
+            cursor: pointer;
+        }
+
+        .paid-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .outcome {
+                width: 90px;
+                height: 90px;
+                font-size: 10px;
+            }
+
+            .outcome-1 { transform: rotate(30deg) translateY(-85px) rotate(-30deg); }
+            .outcome-2 { transform: rotate(90deg) translateY(-85px) rotate(-90deg); }
+            .outcome-3 { transform: rotate(150deg) translateY(-85px) rotate(-150deg); }
+            .outcome-4 { transform: rotate(210deg) translateY(-85px) rotate(-210deg); }
+            .outcome-5 { transform: rotate(270deg) translateY(-85px) rotate(-270deg); }
+            .outcome-6 { transform: rotate(330deg) translateY(-85px) rotate(-330deg); }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .spin-btn {
+                padding: 14px 30px;
+                font-size: 16px;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .modal-content h2 {
+                font-size: 26px;
+            }
+
+            .modal-content p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spin the Wheel</h1>
+        <p class="subtitle">See what you get! 💕</p>
+
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="wheel-text">
+                    <div class="outcome outcome-1">RT 5 Tweets</div>
+                    <div class="outcome outcome-2">Pic On Knees</div>
+                    <div class="outcome outcome-3">Pump 15 Sec</div>
+                    <div class="outcome outcome-4">Send $5</div>
+                    <div class="outcome outcome-5">Pic All 4s</div>
+                    <div class="outcome outcome-6">Pump 30 Sec</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+        <div id="cooldownMsg" style="color: #ff1493; margin-top: 20px; display: none; font-size: 14px;">
+            Come back in <span id="cooldownTime"></span> to spin again! ⏰
+        </div>
+
+        <div style="margin-top: 40px;">
+            <a href="https://wheel-paid.vercel.app/" class="paid-btn">
+                💰 Paid Wheel 💰
+            </a>
+            <p style="color: #999; font-size: 12px; margin-top: 10px;">Unlock premium outcomes & exclusive content</p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-content">
+            <img id="resultImage" src="" alt="Result" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; display: none;">
+            <h2>You Got:</h2>
+            <p id="resultText"></p>
+            <button class="modal-close-btn" onclick="closeModal()">Nice! 💕</button>
+        </div>
+    </div>
+
+    <script>
+        const outcomes = [
+            "Retweet 5 of my tweets",
+            "Send a pic of you on your knees",
+            "Pump for 15 seconds",
+            "Send me $5",
+            "Send a pic of you on all 4s",
+            "Pump for 30 seconds"
+        ];
+
+        const allImages = [
+            "https://mikpics-production.up.railway.app/uploads/1775551316020.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551317094.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551317967.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551343303.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551378030.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551378741.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551379381.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551380113.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551380781.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551381645.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551482048.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551482929.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551483829.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551484680.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551485697.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551486268.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551487234.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551540156.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551541088.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551541970.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551542890.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551543758.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551544620.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551545513.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551546463.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551547360.jpg",
+            "https://mikpics-production.up.railway.app/uploads/1775551548228.jpg"
+        ];
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function getRandomImageForOutcome() {
+            return allImages[Math.floor(Math.random() * allImages.length)];
+        }
+
+        let isSpinning = false;
+        let currentRotation = 0;
+
+        // Check cooldown on page load
+        window.addEventListener('load', function() {
+            checkCooldown();
+            // Update cooldown every second
+            setInterval(updateCooldownDisplay, 1000);
+        });
+
+        function checkCooldown() {
+            const lastSpinTime = localStorage.getItem('lastSpinTime');
+            if (lastSpinTime) {
+                const now = Date.now();
+                const timeSinceLastSpin = now - parseInt(lastSpinTime);
+                const oneHour = 60 * 60 * 1000;
+
+                if (timeSinceLastSpin < oneHour) {
+                    showCooldownMessage();
+                    document.getElementById('spinBtn').disabled = true;
+                } else {
+                    hideCooldownMessage();
+                    document.getElementById('spinBtn').disabled = false;
+                }
+            } else {
+                hideCooldownMessage();
+                document.getElementById('spinBtn').disabled = false;
+            }
+        }
+
+        function updateCooldownDisplay() {
+            const lastSpinTime = localStorage.getItem('lastSpinTime');
+            if (lastSpinTime) {
+                const now = Date.now();
+                const timeSinceLastSpin = now - parseInt(lastSpinTime);
+                const oneHour = 60 * 60 * 1000;
+
+                if (timeSinceLastSpin < oneHour) {
+                    const timeLeft = oneHour - timeSinceLastSpin;
+                    const mins = Math.ceil(timeLeft / (60 * 1000));
+                    document.getElementById('cooldownTime').textContent = mins + 'm';
+                } else {
+                    hideCooldownMessage();
+                    document.getElementById('spinBtn').disabled = false;
+                }
+            }
+        }
+
+        function showCooldownMessage() {
+            document.getElementById('cooldownMsg').style.display = 'block';
+        }
+
+        function hideCooldownMessage() {
+            document.getElementById('cooldownMsg').style.display = 'none';
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+
+            // Check if cooldown is active
+            const lastSpinTime = localStorage.getItem('lastSpinTime');
+            if (lastSpinTime) {
+                const now = Date.now();
+                const timeSinceLastSpin = now - parseInt(lastSpinTime);
+                const oneHour = 60 * 60 * 1000;
+
+                if (timeSinceLastSpin < oneHour) {
+                    return;
+                }
+            }
+
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('resultModal').classList.remove('show');
+            document.getElementById('resultImage').src = '';
+            document.getElementById('resultImage').style.display = 'none';
+
+            const wheel = document.getElementById('wheel');
+            const randomFinalPosition = Math.floor(Math.random() * 360);
+            const randomSpins = Math.floor(Math.random() * 4) + 5;
+            const spinsToAdd = (360 * randomSpins);
+            const totalRotation = currentRotation + spinsToAdd + randomFinalPosition;
+            const resultIndex = Math.floor((360 - (totalRotation % 360)) / 60) % 6;
+
+            wheel.style.transition = 'transform 5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            currentRotation = totalRotation;
+
+            setTimeout(() => {
+                showResult(outcomes[resultIndex], resultIndex);
+                
+                // Record spin time for cooldown
+                localStorage.setItem('lastSpinTime', Date.now().toString());
+                
+                isSpinning = false;
+                checkCooldown();
+                wheel.style.transition = 'none';
+            }, 5000);
+        }
+
+        function showResult(outcome, outcomeIndex) {
+            document.getElementById('resultText').textContent = outcome;
+            
+            // Get random image from all available images
+            const randomImage = getRandomImageForOutcome();
+            const imgElement = document.getElementById('resultImage');
+            imgElement.src = randomImage;
+            imgElement.style.display = 'block';
+            
+            document.getElementById('resultModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('resultModal');
+            const modalContent = document.querySelector('.modal-content');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
