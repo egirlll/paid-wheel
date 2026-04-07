@@ -133,38 +133,6 @@
             cursor: not-allowed;
         }
 
-        .result {
-            background: rgba(255, 20, 147, 0.2);
-            border: 2px solid #ff1493;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 30px;
-            color: #ffffff;
-            display: none;
-        }
-
-        .result.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        .result h2 {
-            color: #ff1493;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .modal-overlay {
             display: none;
             position: fixed;
@@ -220,11 +188,36 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4);
+            width: 100%;
+            margin-bottom: 10px;
         }
 
         .modal-close-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 15px 40px rgba(255, 20, 147, 0.6);
+        }
+
+        #codeInput {
+            padding: 12px;
+            border: 2px solid #ff1493;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 18px;
+            text-align: center;
+            background: rgba(255, 20, 147, 0.1);
+            color: #ffffff;
+            margin: 20px 0;
+        }
+
+        #codeInput::placeholder {
+            color: #999;
+        }
+
+        #codeError {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 12px;
         }
 
         @keyframes fadeIn {
@@ -310,19 +303,15 @@
         </div>
 
         <button class="spin-btn" id="spinBtn" onclick="promptForCode()">SPIN</button>
-        <div id="cooldownMsg" style="color: #ff1493; margin-top: 20px; display: none; font-size: 14px;">
-            Come back in <span id="cooldownTime"></span> to spin again! ⏰
-        </div>
-
     </div>
 
     <div class="modal-overlay" id="codeModal">
         <div class="modal-content">
             <h2>Enter Code</h2>
-            <input type="text" id="codeInput" placeholder="Enter 4-digit code..." maxlength="4" style="padding: 12px; border: 2px solid #ff1493; border-radius: 8px; width: 100%; font-size: 18px; text-align: center; background: rgba(255, 20, 147, 0.1); color: #ffffff; margin: 20px 0;">
-            <p id="codeError" style="color: #ff6b6b; margin-bottom: 15px; display: none; font-size: 12px;"></p>
-            <button class="modal-close-btn" onclick="verifyAndSpin()" style="margin-bottom: 10px; width: 100%;">Verify & Spin</button>
-            <button class="modal-close-btn" onclick="closeCodeModal()" style="background: rgba(255, 20, 147, 0.3); width: 100%;">Cancel</button>
+            <input type="text" id="codeInput" placeholder="Enter 4-digit code..." maxlength="4">
+            <p id="codeError"></p>
+            <button class="modal-close-btn" onclick="verifyAndSpin()">Verify & Spin</button>
+            <button class="modal-close-btn" onclick="closeCodeModal()" style="background: rgba(255, 20, 147, 0.3);">Cancel</button>
         </div>
     </div>
 
@@ -336,23 +325,11 @@
     </div>
 
     <script>
-        // Valid codes list - Jacob can add/remove codes here
+        // Valid codes list
         const validCodes = [
-            "7429",
-            "3841",
-            "5203",
-            "8156",
-            "2694",
-            "9473",
-            "4812",
-            "6538",
-            "1765",
-            "7391",
-            "4625",
-            "8247",
-            "5918",
-            "3672",
-            "6904"
+            "7429", "3841", "5203", "8156", "2694",
+            "9473", "4812", "6538", "1765", "7391",
+            "4625", "8247", "5918", "3672", "6904"
         ];
 
         const outcomes = [
@@ -394,24 +371,9 @@
             "https://mikpics-production.up.railway.app/uploads/1775551548228.jpg"
         ];
 
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
-
-        function getRandomImageForOutcome() {
-            return allImages[Math.floor(Math.random() * allImages.length)];
-        }
-
         let isSpinning = false;
         let currentRotation = 0;
-        let pendingCode = null;
 
-        // Show code modal when SPIN clicked
         function promptForCode() {
             document.getElementById('codeModal').classList.add('show');
             const codeInput = document.getElementById('codeInput');
@@ -419,7 +381,6 @@
             codeInput.value = '';
             document.getElementById('codeError').style.display = 'none';
             
-            // Allow Enter key to submit
             codeInput.onkeypress = function(e) {
                 if (e.key === 'Enter') verifyAndSpin();
             };
@@ -429,7 +390,6 @@
             document.getElementById('codeModal').classList.remove('show');
         }
 
-        // Verify code and spin
         function verifyAndSpin() {
             const codeInput = document.getElementById('codeInput').value.trim();
             const codeError = document.getElementById('codeError');
@@ -453,7 +413,6 @@
                 return;
             }
 
-            // Code is valid! Mark as used and spin
             usedCodes.push(codeInput);
             localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
             
@@ -463,67 +422,12 @@
             }, 200);
         }
 
-        // Check cooldown on page load
-        window.addEventListener('load', function() {
-            checkCooldown();
-            // Update cooldown every second
-            setInterval(updateCooldownDisplay, 1000);
-        });
-
-        function checkCooldown() {
-            const lastSpinTime = localStorage.getItem('lastSpinTime');
-            if (lastSpinTime) {
-                const now = Date.now();
-                const timeSinceLastSpin = now - parseInt(lastSpinTime);
-                const oneHour = 60 * 60 * 1000;
-
-                if (timeSinceLastSpin < oneHour) {
-                    showCooldownMessage();
-                    document.getElementById('spinBtn').disabled = true;
-                } else {
-                    hideCooldownMessage();
-                    document.getElementById('spinBtn').disabled = false;
-                }
-            } else {
-                hideCooldownMessage();
-                document.getElementById('spinBtn').disabled = false;
-            }
-        }
-
-        function updateCooldownDisplay() {
-            const lastSpinTime = localStorage.getItem('lastSpinTime');
-            if (lastSpinTime) {
-                const now = Date.now();
-                const timeSinceLastSpin = now - parseInt(lastSpinTime);
-                const oneHour = 60 * 60 * 1000;
-
-                if (timeSinceLastSpin < oneHour) {
-                    const timeLeft = oneHour - timeSinceLastSpin;
-                    const mins = Math.ceil(timeLeft / (60 * 1000));
-                    document.getElementById('cooldownTime').textContent = mins + 'm';
-                } else {
-                    hideCooldownMessage();
-                    document.getElementById('spinBtn').disabled = false;
-                }
-            }
-        }
-
-        function showCooldownMessage() {
-            document.getElementById('cooldownMsg').style.display = 'block';
-        }
-
-        function hideCooldownMessage() {
-            document.getElementById('cooldownMsg').style.display = 'none';
-        }
-
         function spinWheel() {
             if (isSpinning) return;
 
             isSpinning = true;
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('resultModal').classList.remove('show');
-            document.getElementById('resultImage').src = '';
-            document.getElementById('resultImage').style.display = 'none';
 
             const wheel = document.getElementById('wheel');
             const randomFinalPosition = Math.floor(Math.random() * 360);
@@ -537,18 +441,21 @@
             currentRotation = totalRotation;
 
             setTimeout(() => {
-                showResult(outcomes[resultIndex], resultIndex);
+                showResult(outcomes[resultIndex]);
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
                 wheel.style.transition = 'none';
             }, 5000);
         }
 
-        function showResult(outcome, outcomeIndex) {
+        function getRandomImage() {
+            return allImages[Math.floor(Math.random() * allImages.length)];
+        }
+
+        function showResult(outcome) {
             document.getElementById('resultText').textContent = outcome;
             
-            // Get random image from all available images
-            const randomImage = getRandomImageForOutcome();
+            const randomImage = getRandomImage();
             const imgElement = document.getElementById('resultImage');
             imgElement.src = randomImage;
             imgElement.style.display = 'block';
@@ -560,7 +467,6 @@
             document.getElementById('resultModal').classList.remove('show');
         }
 
-        // Close modals when clicking outside
         document.addEventListener('click', function(event) {
             const resultModal = document.getElementById('resultModal');
             const codeModal = document.getElementById('codeModal');
