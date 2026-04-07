@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spin the Wheel ~ Free</title>
+    <title>Spin the Wheel ~ Premium</title>
     <style>
         * {
             margin: 0;
@@ -227,26 +227,6 @@
             box-shadow: 0 15px 40px rgba(255, 20, 147, 0.6);
         }
 
-        .paid-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #1a1a2e;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 50px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
-            border: none;
-            cursor: pointer;
-        }
-
-        .paid-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
-        }
-
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -311,8 +291,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Spin the Wheel</h1>
-        <p class="subtitle">See what you get! 💕</p>
+        <h1>💎 Premium Wheel 💎</h1>
+        <p class="subtitle">Exclusive outcomes unlock 🔓</p>
 
         <div class="wheel-container">
             <div class="pointer"></div>
@@ -333,12 +313,6 @@
             Come back in <span id="cooldownTime"></span> to spin again! ⏰
         </div>
 
-        <div style="margin-top: 40px;">
-            <a href="https://wheel-paid.vercel.app/" class="paid-btn">
-                💰 Paid Wheel 💰
-            </a>
-            <p style="color: #999; font-size: 12px; margin-top: 10px;">Unlock premium outcomes & exclusive content</p>
-        </div>
     </div>
 
     <div class="modal-overlay" id="resultModal">
