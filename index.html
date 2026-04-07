@@ -293,22 +293,32 @@
     <div class="container">
         <h1>💎 Premium Wheel 💎</h1>
         <p class="subtitle">Exclusive outcomes unlock 🔓</p>
+        <p style="color: #ff1493; font-size: 12px; margin-bottom: 20px;">Send to Throne → get code → unlock spin</p>
 
-        <div class="wheel-container">
-            <div class="pointer"></div>
-            <div class="wheel" id="wheel">
-                <div class="wheel-text">
-                    <div class="outcome outcome-1">RT 5 Tweets</div>
-                    <div class="outcome outcome-2">Pic On Knees</div>
-                    <div class="outcome outcome-3">Pump 15 Sec</div>
-                    <div class="outcome outcome-4">Send $5</div>
-                    <div class="outcome outcome-5">Pic All 4s</div>
-                    <div class="outcome outcome-6">Pump 30 Sec</div>
-                </div>
-            </div>
+        <div id="codeSection" style="margin-bottom: 30px;">
+            <p style="color: #ffffff; margin-bottom: 15px; font-size: 14px;">Enter your code to spin</p>
+            <input type="text" id="codeInput" placeholder="Enter code..." style="padding: 12px; border: 2px solid #ff1493; border-radius: 8px; width: 100%; max-width: 300px; font-size: 16px; text-align: center; background: rgba(255, 20, 147, 0.1); color: #ffffff;">
+            <button class="spin-btn" onclick="verifyCode()" style="margin-top: 12px; width: 100%; max-width: 300px;">Unlock Wheel</button>
+            <p id="codeError" style="color: #ff6b6b; margin-top: 10px; display: none; font-size: 12px;"></p>
         </div>
 
-        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+        <div id="wheelSection" style="display: none;">
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <div class="wheel" id="wheel">
+                    <div class="wheel-text">
+                        <div class="outcome outcome-1">RT 5 Tweets</div>
+                        <div class="outcome outcome-2">Pic On Knees</div>
+                        <div class="outcome outcome-3">Pump 15 Sec</div>
+                        <div class="outcome outcome-4">Send $5</div>
+                        <div class="outcome outcome-5">Pic All 4s</div>
+                        <div class="outcome outcome-6">Pump 30 Sec</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+        </div>
         <div id="cooldownMsg" style="color: #ff1493; margin-top: 20px; display: none; font-size: 14px;">
             Come back in <span id="cooldownTime"></span> to spin again! ⏰
         </div>
@@ -325,6 +335,15 @@
     </div>
 
     <script>
+        // Valid codes list - Jacob can add/remove codes here
+        const validCodes = [
+            "PREMIUM001",
+            "PREMIUM002",
+            "PREMIUM003",
+            "PREMIUM004",
+            "PREMIUM005"
+        ];
+
         const outcomes = [
             "Retweet 5 of my tweets",
             "Send a pic of you on your knees",
@@ -379,6 +398,43 @@
 
         let isSpinning = false;
         let currentRotation = 0;
+        let codeVerified = false;
+
+        // Verify code function
+        function verifyCode() {
+            const codeInput = document.getElementById('codeInput').value.trim().toUpperCase();
+            const codeError = document.getElementById('codeError');
+            const usedCodes = JSON.parse(localStorage.getItem('usedCodes') || '[]');
+
+            if (!codeInput) {
+                codeError.textContent = 'Please enter a code';
+                codeError.style.display = 'block';
+                return;
+            }
+
+            if (!validCodes.includes(codeInput)) {
+                codeError.textContent = 'Invalid code';
+                codeError.style.display = 'block';
+                return;
+            }
+
+            if (usedCodes.includes(codeInput)) {
+                codeError.textContent = 'Code already used';
+                codeError.style.display = 'block';
+                return;
+            }
+
+            // Code is valid!
+            codeVerified = true;
+            const usedCode = codeInput;
+            usedCodes.push(usedCode);
+            localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
+
+            // Hide code section, show wheel
+            document.getElementById('codeSection').style.display = 'none';
+            document.getElementById('wheelSection').style.display = 'block';
+            codeError.style.display = 'none';
+        }
 
         // Check cooldown on page load
         window.addEventListener('load', function() {
@@ -434,19 +490,7 @@
         }
 
         function spinWheel() {
-            if (isSpinning) return;
-
-            // Check if cooldown is active
-            const lastSpinTime = localStorage.getItem('lastSpinTime');
-            if (lastSpinTime) {
-                const now = Date.now();
-                const timeSinceLastSpin = now - parseInt(lastSpinTime);
-                const oneHour = 60 * 60 * 1000;
-
-                if (timeSinceLastSpin < oneHour) {
-                    return;
-                }
-            }
+            if (isSpinning || !codeVerified) return;
 
             isSpinning = true;
             document.getElementById('spinBtn').disabled = true;
@@ -468,13 +512,23 @@
             setTimeout(() => {
                 showResult(outcomes[resultIndex], resultIndex);
                 
-                // Record spin time for cooldown
-                localStorage.setItem('lastSpinTime', Date.now().toString());
-                
                 isSpinning = false;
-                checkCooldown();
                 wheel.style.transition = 'none';
+                
+                // After spin, ask for new code
+                setTimeout(() => {
+                    resetForNewCode();
+                }, 3000);
             }, 5000);
+        }
+
+        function resetForNewCode() {
+            codeVerified = false;
+            document.getElementById('wheelSection').style.display = 'none';
+            document.getElementById('codeSection').style.display = 'block';
+            document.getElementById('codeInput').value = '';
+            document.getElementById('codeError').style.display = 'none';
+        }
         }
 
         function showResult(outcome, outcomeIndex) {
